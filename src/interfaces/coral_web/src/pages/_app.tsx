@@ -4,7 +4,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query';
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+// import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import fetch from 'cross-fetch';
 import type { AppProps } from 'next/app';
 
@@ -65,7 +65,7 @@ const App: React.FC<Props> = ({ Component, pageProps, ...props }) => {
             <GlobalHead />
             <WebManifestHead />
             <ToastNotification />
-            <ReactQueryDevtools />
+            {/* <ReactQueryDevtools /> */}
             <Component {...pageProps} />
           </ContextStore>
         </HydrationBoundary>
