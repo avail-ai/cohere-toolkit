@@ -44,7 +44,7 @@ async def get_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -72,7 +72,7 @@ async def list_conversations(
     Returns:
         list[ConversationWithoutMessages]: List of conversations.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
     return conversation_crud.get_conversations(
         session, offset=offset, limit=limit, user_id=user_id
     )
@@ -100,7 +100,7 @@ async def update_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -134,7 +134,7 @@ async def delete_conversation(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -172,7 +172,7 @@ async def upload_file(
         HTTPException: If the file wasn't uploaded correctly. Status code 500.
     """
 
-    user_id = request.headers.get("User-Id", "")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
 
     # Create new conversation
     if not conversation_id:
@@ -240,7 +240,7 @@ async def list_files(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:
@@ -276,7 +276,7 @@ async def update_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
 
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
@@ -317,7 +317,7 @@ async def delete_file(
     Raises:
         HTTPException: If the conversation with the given ID is not found.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
     conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
 
     if not conversation:

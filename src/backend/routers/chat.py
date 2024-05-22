@@ -170,7 +170,7 @@ def process_chat(
     Returns:
         Tuple: Tuple containing necessary data to construct the responses.
     """
-    user_id = request.headers.get("User-Id", "")
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
     deployment_name = request.headers.get("Deployment-Name", "")
     should_store = chat_request.chat_history is None and not is_custom_tool_call(
         chat_request
