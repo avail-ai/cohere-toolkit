@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --port 4000",
+    "dev": "env-cmd -f ./.env.development next dev --port 4000",
     "build": "env-cmd -f ./.env.production next build",
     "lint": "next lint",
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",

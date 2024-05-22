@@ -6,7 +6,7 @@ import { Tabs } from '@/components/Shared';
 import { CONFIGURATION_PANEL_ID } from '@/constants';
 
 const TABS = [
-  { name: 'Tools', component: Tools },
+  { name: 'Supplementary', component: Tools },
   { name: 'Settings', component: Settings },
 ];
 

@@ -12,25 +12,27 @@ import { cn } from '@/utils';
  */
 export const Settings: React.FC = () => {
   const {
-    params: { temperature, preamble, deployment, model },
+    params: { temperature, preamble,
+      // deployment, model
+    },
     setParams,
   } = useParamsStore();
   const defaults = useSettingsDefaults();
   const { data: deployments = [] } = useListAllDeployments();
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
-  const modelOptions = useMemo(() => {
-    const selectedDeployment = deployments?.find(({ name }) => name === deployment);
-    if (!selectedDeployment) return [];
-    return [
-      {
-        options: selectedDeployment.models.map((model) => ({
-          label: model,
-          value: model,
-        })),
-      },
-    ];
-  }, [deployment]);
+  // const modelOptions = useMemo(() => {
+  //   const selectedDeployment = deployments?.find(({ name }) => name === deployment);
+  //   if (!selectedDeployment) return [];
+  //   return [
+  //     {
+  //       options: selectedDeployment.models.map((model) => ({
+  //         label: model,
+  //         value: model,
+  //       })),
+  //     },
+  //   ];
+  // }, [deployment]);
 
   const reset = () => {
     setParams({
@@ -51,14 +53,14 @@ export const Settings: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">
-      <Dropdown
+      {/* <Dropdown
         className="w-full"
         label="Model"
         kind="default"
         value={model}
         onChange={(model: string) => setParams({ model })}
         optionGroups={modelOptions}
-      />
+      /> */}
       <Slider
         className="w-full"
         label="Temperature"

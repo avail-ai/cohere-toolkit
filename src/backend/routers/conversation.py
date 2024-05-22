@@ -201,7 +201,7 @@ async def upload_file(
             )
 
     # Handle uploading File
-    file_path = FileService().upload_file(file)
+    file_path = FileService(conversation.id).upload_file(file)
 
     # Raise exception if file wasn't uploaded
     if not file_path.exists():
@@ -335,7 +335,7 @@ async def delete_file(
         )
 
     # Delete File from local volume, and also the File DB object
-    FileService().delete_file(file.file_path)
+    FileService(conversation_id).delete_file(file.file_path)
     file_crud.delete_file(session, file_id, user_id)
 
     return DeleteFile()

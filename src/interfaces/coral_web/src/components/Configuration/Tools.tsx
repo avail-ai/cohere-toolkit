@@ -1,5 +1,5 @@
 import { uniq } from 'lodash';
-import React, { Fragment } from 'react';
+import React from 'react';
 
 import { Tool } from '@/cohere-client';
 import { FilesSection } from '@/components/Configuration/Files';
@@ -21,14 +21,9 @@ export const Tools: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { files } = useFilesInConversation();
   return (
     <article className={cn('flex flex-col pb-10', className)}>
-      <ToolSection />
-
       {/* File upload is not supported for conversarions without an id */}
       {conversationId && files.length > 0 && (
-        <>
-          <hr className="my-6 border-t border-marble-400" />
           <FilesSection />
-        </>
       )}
     </article>
   );

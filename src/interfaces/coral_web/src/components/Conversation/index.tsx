@@ -61,6 +61,21 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
   } = useFilesStore();
   const { params, setParams } = useParamsStore();
 
+  useEffect(() => {
+    if (conversationId !== params.filesConversationId) {
+      setParams({ fileIds: [], filesConversationId: undefined });
+    }
+  }, [conversationId, params.filesConversationId])
+
+  useEffect(() => {
+    if (!params.filesConversationId && files.length > 0) {
+      setParams({
+        fileIds: files.map((f) => f.id),
+        filesConversationId: conversationId
+      });
+    }
+  }, [files]);
+
   const {
     userMessage,
     isStreaming,

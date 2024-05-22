@@ -37,7 +37,9 @@ export const useListFiles = (conversationId?: string, options?: { enabled?: bool
 export const useFilesInConversation = () => {
   const {
     conversation: { messages },
+    setConversation
   } = useConversationStore();
+  const { deleteFile } = useFileActions();
   const files = useMemo<CohereFile[]>(() => {
     return messages.reduce<CohereFile[]>((filesInConversation, msg) => {
       if (msg.type === MessageType.USER && msg.files) {
@@ -45,9 +47,21 @@ export const useFilesInConversation = () => {
       }
       return filesInConversation;
     }, []);
-  }, [messages.length]);
+  }, [messages]);
 
-  return { files };
+  const removeFile = (fileId: string, conversationId: string) => {
+    deleteFile({ fileId: fileId, conversationId: conversationId }).then(() => {
+      messages.forEach((msg) => {
+        if (msg.type === MessageType.USER && msg.files) {
+          msg.files = msg.files.filter((file) => file.id !== fileId);
+        }
+      }
+      );
+      setConversation({ messages: [...messages] });
+    });
+  };
+
+  return { files, removeFile };
 };
 
 export const useUploadFile = () => {
