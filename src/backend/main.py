@@ -1,5 +1,5 @@
-import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
@@ -18,6 +18,10 @@ from backend.routers.experimental_features import router as experimental_feature
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.logger import LoggingMiddleware
+
+if os.environ.get("USE_PYSQLITE", False):
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 load_dotenv()
 

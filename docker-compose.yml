@@ -59,6 +59,8 @@ services:
       - ./src/backend/data:/workspace/src/backend/data
       # For SageMaker: The line below for AWS configure file to sync credentials
       - $HOME/.aws:/root/.aws 
+      # For deployment requirements
+      - ./tmp:/workspace/tmp
     # network_mode: host
       
   frontend:

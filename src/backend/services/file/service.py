@@ -5,7 +5,9 @@ from typing import Any
 
 
 class FileService:
-    DEFAULT_DATA_FOLDER = "src/backend/data"
+    DEFAULT_DATA_FOLDER = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../", "data")
+    )
 
     def __init__(self, conversation_id: str):
         current_directory = Path(Path.cwd())
