@@ -8,7 +8,6 @@ import MessagingContainer from '@/components/Conversation/MessagingContainer';
 import { DragDropFileInput, Spinner } from '@/components/Shared';
 import { HotKeysProvider } from '@/components/Shared/HotKeys';
 import { PromptOption } from '@/components/StartModes';
-import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ACCEPTED_FILE_TYPES, ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
 import { useFocusComposer } from '@/hooks/actions';
@@ -222,7 +221,6 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
           onPromptSelected={handlePromptSelected}
           composer={
             <>
-              <WelcomeGuideTooltip step={3} className="absolute bottom-full mb-4" />
               <Composer
                 isStreaming={isStreaming}
                 value={userMessage}

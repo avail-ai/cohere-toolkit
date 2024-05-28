@@ -1,27 +1,28 @@
-import { DehydratedState, QueryClient, dehydrate } from '@tanstack/react-query';
-import { GetServerSideProps, NextPage } from 'next';
+import { NextPage } from 'next';
 import { useContext, useEffect } from 'react';
+import { useRouter } from 'next/router';
 
-import { CohereClient } from '@/cohere-client';
+import { Document } from '@/cohere-client';
 import Conversation from '@/components/Conversation';
+import { ConversationError } from '@/components/ConversationError';
 import ConversationListPanel from '@/components/ConversationList/ConversationListPanel';
 import { Layout, LayoutSection } from '@/components/Layout';
+import { Spinner } from '@/components/Shared';
 import { BannerContext } from '@/context/BannerContext';
+import { useConversation } from '@/hooks/conversation';
 import { useListDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
-import { appSSR } from '@/pages/_app';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
+import { createStartEndKey, mapHistoryToMessages } from '@/utils';
+import { isEmpty } from 'lodash';
 
-type Props = {
-  reactQueryState: DehydratedState;
-};
 
-const ChatPage: NextPage<Props> = () => {
+const ChatPage: NextPage = () => {
   const {
-    conversation: { id },
+    setConversation,
     resetConversation,
   } = useConversationStore();
-  const { resetCitations } = useCitationsStore();
+  const { addCitation, resetCitations } = useCitationsStore();
   const {
     params: { deployment },
     setParams,
@@ -30,17 +31,59 @@ const ChatPage: NextPage<Props> = () => {
   const { data: experimentalFeatures } = useExperimentalFeatures();
   const isLangchainModeOn = !!experimentalFeatures?.USE_EXPERIMENTAL_LANGCHAIN;
   const { setMessage } = useContext(BannerContext);
+  const router = useRouter();
 
+  const urlConversationId = Array.isArray(router.query.c)
+    ? router.query.c[0]
+    : (router.query.c as string);
+
+  const {
+    data: conversation,
+    isLoading,
+    isError,
+    error,
+  } = useConversation({ conversationId: urlConversationId });
+  
   useEffect(() => {
+    console.log("urlConversationId", urlConversationId)
     resetConversation();
-    resetCitations();
-  }, []);
+
+    if (urlConversationId) {
+      setConversation({ id: urlConversationId });
+    }
+  }, [urlConversationId, setConversation, resetCitations]);
 
   useEffect(() => {
+    if (!conversation) return;
+
+    const messages = mapHistoryToMessages(
+      conversation?.messages?.sort((a, b) => a.position - b.position)
+    );
+    setConversation({ name: conversation.title, messages });
+  }, [conversation?.id, setConversation]);
+
+  useEffect(() => {
+    console.log(deployment, availableDeployments)
     if (!deployment && availableDeployments && availableDeployments?.length > 0) {
       setParams({ deployment: availableDeployments[0].name });
     }
   }, [deployment, availableDeployments]);
+
+  useEffect(() => {
+    let documentsMap: { [documentId: string]: Document } = {};
+    (conversation?.messages ?? []).forEach((message) => {
+      documentsMap =
+        message.documents?.reduce<{ [documentId: string]: Document }>(
+          (idToDoc, doc) => ({ ...idToDoc, [doc.document_id ?? '']: doc }),
+          {}
+        ) ?? {};
+      message.citations?.forEach((citation) => {
+        const startEndKey = createStartEndKey(citation.start ?? 0, citation.end ?? 0);
+        const documents = citation.document_ids?.map((id) => documentsMap[id]) ?? [];
+        addCitation(message.generation_id ?? '', startEndKey, documents);
+      });
+    });
+  }, [conversation]);
 
   useEffect(() => {
     if (!isLangchainModeOn) return;
@@ -53,42 +96,19 @@ const ChatPage: NextPage<Props> = () => {
         <ConversationListPanel />
       </LayoutSection.LeftDrawer>
       <LayoutSection.Main>
-        <Conversation conversationId={id} startOptionsEnabled />
+        {
+          isLoading ? (
+            <div className="flex h-full flex-grow flex-col items-center justify-center">
+              <Spinner />
+            </div>
+          ) : isError ? (
+            <ConversationError error={error} />
+          ) :
+            <Conversation conversationId={urlConversationId} startOptionsEnabled={isEmpty(urlConversationId)} />
+        }
       </LayoutSection.Main>
     </Layout>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  await Promise.allSettled([
-    deps.queryClient.prefetchQuery({
-      queryKey: ['conversations'],
-      queryFn: async () => {
-        return (await deps.cohereClient.listConversations({})) ?? [];
-      },
-    }),
-    deps.queryClient.prefetchQuery({
-      queryKey: ['tools'],
-      queryFn: async () => await deps.cohereClient.listTools({}),
-    }),
-    deps.queryClient.prefetchQuery({
-      queryKey: ['deployments'],
-      queryFn: async () => await deps.cohereClient.listDeployments(),
-    }),
-  ]);
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
 };
 
 export default ChatPage;

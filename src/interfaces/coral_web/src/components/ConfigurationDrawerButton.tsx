@@ -3,7 +3,6 @@ import React from 'react';
 
 import { Dot } from '@/components/Dot';
 import { BasicButton, Text } from '@/components/Shared';
-import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useIsGroundingOn } from '@/hooks/grounding';
 import { useSettingsStore } from '@/stores';
@@ -42,12 +41,6 @@ export const ConfigurationDrawerButton: React.FC<Props> = ({ className = '' }) =
         dataTestId="button-grounding-drawer"
         startIcon={<Dot on={isGroundingOn} />}
         onClick={handleGroundingClick}
-      />
-      <WelcomeGuideTooltip
-        step={1}
-        className={cn('right-0 top-full mt-9', {
-          'delay-1000': !welcomeGuideState || welcomeGuideState === WelcomeGuideStep.ONE,
-        })}
       />
     </div>
   );
