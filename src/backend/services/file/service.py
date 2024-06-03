@@ -5,16 +5,18 @@ from typing import Any
 
 
 class FileService:
-    DEFAULT_DATA_FOLDER = "src/backend/data"
+    DEFAULT_DATA_FOLDER = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), "../../", "data")
+    )
 
-    def __init__(self):
+    def __init__(self, conversation_id: str):
         current_directory = Path(Path.cwd())
         data_folder = Path(self.DEFAULT_DATA_FOLDER)
 
-        self.folder_path = current_directory.joinpath(data_folder)
+        self.folder_path = current_directory.joinpath(data_folder, conversation_id)
 
     def create_file_folder(self):
-        self.folder_path.mkdir(exist_ok=True)
+        self.folder_path.mkdir(exist_ok=True, parents=True)
 
     def generate_new_filepath(self, file_path: Path) -> Path:
         """

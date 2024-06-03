@@ -99,7 +99,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
       <div className={cn('select-none', wrapperClassName)}>{info}</div>
     ) : (
       <Link
-        href={`/c/${conversationId}`}
+        href={`/?c=${conversationId}`}
         key={conversationId}
         shallow
         onClick={() => {

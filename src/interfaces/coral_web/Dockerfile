@@ -19,6 +19,7 @@ COPY tsconfig.json .
 COPY tailwind.config.js .
 COPY postcss.config.js .
 COPY .en[v] .env
+COPY .en[v].* .
 
 # Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line to disable telemetry at run time
@@ -28,8 +29,8 @@ COPY .en[v] .env
 
 # Start Next.js in development mode based on the preferred package manager
 CMD \
-  if [ -f yarn.lock ]; then yarn dev; \
-  elif [ -f package-lock.json ]; then npm run dev; \
-  elif [ -f pnpm-lock.yaml ]; then pnpm dev; \
-  else npm run dev; \
+  if [ -f yarn.lock ]; then yarn build:dev; \
+  elif [ -f package-lock.json ]; then npm run build:dev; \
+  elif [ -f pnpm-lock.yaml ]; then pnpm build:dev; \
+  else npm run build:dev; \
   fi

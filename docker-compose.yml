@@ -59,6 +59,9 @@ services:
       - ./src/backend/data:/workspace/src/backend/data
       # For SageMaker: The line below for AWS configure file to sync credentials
       - $HOME/.aws:/root/.aws 
+      # For deployment requirements
+      - ./tmp/backend:/workspace/tmp
+      - ./tmp/frontend:/workspace/src/backend/ui
     # network_mode: host
       
   frontend:
@@ -79,6 +82,10 @@ services:
           target: /app
           ignore:
           - node_modules/
+    volumes:
+      # For deployment requirements
+      - ./tmp/frontend:/app/build
+      - .deployenv:/app/.env.production
   terrarium:
     image: ghcr.io/cohere-ai/terrarium:latest
     ports:

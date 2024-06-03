@@ -70,7 +70,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { mutateAsync: streamChat } = chatMutation;
 
   const {
-    params: { temperature, tools, model, deployment },
+    params: { temperature, tools, model, deployment, fileIds },
   } = useParamsStore();
   const {
     conversation: { id, messages },
@@ -83,7 +83,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
     clearComposerFiles,
   } = useFilesStore();
   const queryClient = useQueryClient();
-  const fileIds = composerFiles.map((file) => file.id);
+  const composerFileIds = composerFiles.map((file) => file.id);
 
   const [userMessage, setUserMessage] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -269,8 +269,8 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 setConversation({ id: conversationId });
               }
               // Make sure our URL is up to date with the conversationId
-              if (!window.location.pathname.includes(`c/${conversationId}`) && conversationId) {
-                window?.history?.replaceState('', '', `c/${conversationId}`);
+              if (!window.location.pathname.includes(`c=${conversationId}`) && conversationId) {
+                window?.history?.replaceState('', '', `c=${conversationId}`);
                 queryClient.invalidateQueries({ queryKey: ['conversations'] });
               }
 
@@ -414,6 +414,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
   const getChatRequest = (message: string, overrides?: ChatRequestOverrides): CohereChatRequest => {
     const { tools: overrideTools, ...restOverrides } = overrides ?? {};
+    const files = [...composerFileIds, ...(fileIds || [])];
     return {
       message,
       conversation_id: id,
@@ -422,7 +423,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
         : tools && tools.length > 0
         ? tools
         : undefined,
-      file_ids: fileIds && fileIds.length > 0 ? fileIds : undefined,
+      file_ids: files && files.length > 0 ? files : undefined,
       temperature,
       model,
       ...restOverrides,

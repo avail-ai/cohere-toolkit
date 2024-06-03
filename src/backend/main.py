@@ -1,5 +1,5 @@
-import logging
 import os
+import sys
 from contextlib import asynccontextmanager
 
 from alembic.command import upgrade
@@ -7,6 +7,7 @@ from alembic.config import Config
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from backend.config.auth import ENABLED_AUTH_STRATEGY_MAPPING
@@ -18,6 +19,10 @@ from backend.routers.experimental_features import router as experimental_feature
 from backend.routers.tool import router as tool_router
 from backend.routers.user import router as user_router
 from backend.services.logger import LoggingMiddleware
+
+if os.environ.get("USE_PYSQLITE", False):
+    __import__('pysqlite3')
+    sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
 
 load_dotenv()
 
@@ -40,6 +45,7 @@ def create_app():
     app.include_router(tool_router)
     app.include_router(deployment_router)
     app.include_router(experimental_feature_router)
+    app.mount("/", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "ui", "output"), html = True), name="ui")
 
     # Add middleware
     app.add_middleware(
