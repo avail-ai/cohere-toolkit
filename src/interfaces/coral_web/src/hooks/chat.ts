@@ -269,8 +269,8 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 setConversation({ id: conversationId });
               }
               // Make sure our URL is up to date with the conversationId
-              if (!window.location.pathname.includes(`c=${conversationId}`) && conversationId) {
-                window?.history?.replaceState('', '', `c=${conversationId}`);
+              if (!window.location.search.includes(`c=${conversationId}`) && conversationId) {
+                window?.history?.replaceState('', '', `?c=${conversationId}`);
                 queryClient.invalidateQueries({ queryKey: ['conversations'] });
               }
 

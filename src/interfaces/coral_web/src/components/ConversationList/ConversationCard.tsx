@@ -46,7 +46,7 @@ const useMenuItems = ({ conversationId, name }: { conversationId: string; name: 
         },
       },
     ],
-    []
+    [conversationId, name]
   );
 
   return menuItems;
@@ -56,7 +56,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   const { title, conversationId, description } = conversation;
   const { setSettings } = useSettingsStore();
   const {
-    conversation: { id: selectedConversationId, name: conversationName },
+    conversation: { name: conversationName },
     setConversation,
   } = useConversationStore();
   const isDesktop = useIsDesktop();
@@ -66,7 +66,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   // from the context store, otherwise we use the name from the conversation object
   // this is to ensure that we use the typed animation
   // @see "handleUpdateConversationTitle" in hooks/chat.ts
-  const name = conversationId === selectedConversationId ? conversationName : title;
+  const name = title || conversationName;
 
   const menuItems = useMenuItems({ conversationId, name: name! });
 

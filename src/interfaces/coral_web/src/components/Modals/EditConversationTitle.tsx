@@ -26,7 +26,7 @@ export const EditConversationTitle: React.FC<Props> = ({
       setErrorMessage('');
       await editConversation({ conversationId, title });
 
-      if (window?.location.pathname.includes(conversationId)) {
+      if (window.location.search.includes(`c=${conversationId}`)) {
         setConversation({ name: title });
       }
       onClose();

@@ -45,7 +45,6 @@ const ChatPage: NextPage = () => {
   } = useConversation({ conversationId: urlConversationId });
   
   useEffect(() => {
-    console.log("urlConversationId", urlConversationId)
     resetConversation();
 
     if (urlConversationId) {
@@ -63,7 +62,6 @@ const ChatPage: NextPage = () => {
   }, [conversation?.id, setConversation]);
 
   useEffect(() => {
-    console.log(deployment, availableDeployments)
     if (!deployment && availableDeployments && availableDeployments?.length > 0) {
       setParams({ deployment: availableDeployments[0].name });
     }
