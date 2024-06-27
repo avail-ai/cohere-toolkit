@@ -27,56 +27,49 @@ type Mode = {
 
 const UNGROUNDED_PROMPTS: Prompt[] = [
   {
-    title: 'English to French',
+    title: 'Acquiring a commercial property',
     description: (
       <>
-        Create a business plan for a marketing agency in <span className="font-medium">French</span>
+        What are the legal steps involved in acquiring a commercial property through a share purchase?
       </>
     ),
     icon: 'globe-stand',
     prompt:
-      'Write a business plan outline for an marketing agency in French. Highlight all the section titles, and make it less than 300 words.',
+      'What are the legal steps involved in acquiring a commercial property through a share purchase?',
   },
   {
-    title: 'Multilingual',
-    description: 'Redacta una descripción de empleo Diseñador(a) Web',
+    title: 'Minority shareholders',
+    description: 'What should be included in a shareholders\' agreement to protect minority shareholders?',
     icon: 'globe-stand',
     prompt:
-      'Redacta una descripción de empleo para la posición de Diseñador(a) Web. Esta descripción debe incluir un segmento detallando las responsabilidades asociadas al puesto, así como 4 puntos destacando los atributos que valoramos en los aspirantes. La lista de cualidades debe seguir el formato: Nombre del atributo: Descripción.',
+      'What should be included in a shareholders\' agreement to protect minority shareholders?',
   },
   {
-    title: 'Code Generation',
-    description: 'Help me clean up some data in Python',
+    title: 'Non-compete clauses',
+    description: 'What are the legal requirements for drafting a non-compete clause in an employment contract?',
     icon: 'code',
-    prompt: `I want to figure out how to remove nan values from my array. For example, My array looks something like this:
-    
-        x = [1400, 1500, 1600, nan, nan, nan ,1700] #Not in this exact configuration
-            
-        How can I remove the nan values from x to get something like:
-            
-        x = [1400, 1500, 1600, 1700]
-    `,
+    prompt: `What are the legal requirements for drafting a non-compete clause in an employment contract?`,
   },
 ];
 
-const WEB_SEARCH_PROMPTS: Prompt[] = [
+const COMMAND_PROMPTS: Prompt[] = [
   {
-    title: 'Stay up to date',
-    description: 'US tech company employee count',
+    title: 'Letter of intent',
+    description: 'Drafting a letter',
     icon: 'newspaper',
-    prompt: 'Give me the number of employees at Apple, Amazon, and Google in a table.',
+    prompt: 'Draft a letter of intent for the acquisition of a commercial property.',
   },
   {
-    title: 'Research',
-    description: 'Overview of solar panel industry',
+    title: 'Shareholder\'s Agreement',
+    description: 'Generate a template',
     icon: 'flask',
-    prompt: 'What are some cutting edge companies working on solar energy?',
+    prompt: 'Generate a template for a shareholders\' agreement for a private limited company.',
   },
   {
-    title: 'Learn a topic',
-    description: 'Missions to the moon',
+    title: 'Redundancy policy',
+    description: 'Generate a policy template',
     icon: 'book',
-    prompt: `How many missions have there been to the moon?`,
+    prompt: `Generate a redundancy policy template compliant with UK employment laws.`,
   },
 ];
 
@@ -86,17 +79,17 @@ export const useStartModes = () => {
   const modes: Mode[] = [
     {
       id: StartMode.UNGROUNDED,
-      title: 'Just Chat',
-      description: 'Use Coral without any access to external sources.',
+      title: 'Ask Questions',
+      description: 'Use this chat bot without any access to external sources to answer questions',
       params: { fileIds: [], tools: [] },
       promptOptions: UNGROUNDED_PROMPTS,
     },
     {
-      id: StartMode.WEB_SEARCH,
-      title: 'Wikpedia',
-      description: 'Use multiple sources and tools to answer questions with citations.',
+      id: StartMode.UNGROUNDED,
+      title: 'Give Commands',
+      description: 'Ask the chat bot to draft/generate documents/letters/emails for you',
       params: { fileIds: [], tools: [{ name: DEFAULT_CHAT_TOOL }] },
-      promptOptions: WEB_SEARCH_PROMPTS,
+      promptOptions: COMMAND_PROMPTS,
     },
   ];
 
