@@ -88,7 +88,7 @@ export const useStartModes = () => {
       id: StartMode.UNGROUNDED,
       title: 'Give Commands',
       description: 'Ask the chat bot to draft/generate documents/letters/emails for you',
-      params: { fileIds: [], tools: [{ name: DEFAULT_CHAT_TOOL }] },
+      params: { fileIds: [], tools: [] },
       promptOptions: COMMAND_PROMPTS,
     },
   ];
