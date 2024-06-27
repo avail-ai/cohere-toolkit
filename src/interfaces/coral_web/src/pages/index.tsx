@@ -19,6 +19,7 @@ import { isEmpty } from 'lodash';
 
 const ChatPage: NextPage = () => {
   const {
+    conversation: {id: conversationId, messages: conversationMessages},
     setConversation,
     resetConversation,
   } = useConversationStore();
@@ -45,7 +46,10 @@ const ChatPage: NextPage = () => {
   } = useConversation({ conversationId: urlConversationId });
   
   useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlConversationId = urlParams.get('c') || undefined
     resetConversation();
+    setParams({ fileIds: [] });
 
     if (urlConversationId) {
       setConversation({ id: urlConversationId });
@@ -58,8 +62,14 @@ const ChatPage: NextPage = () => {
     const messages = mapHistoryToMessages(
       conversation?.messages?.sort((a, b) => a.position - b.position)
     );
-    setConversation({ name: conversation.title, messages });
+    setConversation({ name: conversation.title, messages, files: conversation.files });
   }, [conversation?.id, setConversation]);
+
+  useEffect(() => {
+    if (!conversation || !conversation.title) return;
+
+    setConversation({ name: conversation.title });
+  }, [conversation?.title])
 
   useEffect(() => {
     if (!deployment && availableDeployments && availableDeployments?.length > 0) {
@@ -102,7 +112,7 @@ const ChatPage: NextPage = () => {
           ) : isError ? (
             <ConversationError error={error} />
           ) :
-            <Conversation conversationId={urlConversationId} startOptionsEnabled={isEmpty(urlConversationId)} />
+            <Conversation conversationId={urlConversationId} startOptionsEnabled={isEmpty(conversationMessages)} />
         }
       </LayoutSection.Main>
     </Layout>

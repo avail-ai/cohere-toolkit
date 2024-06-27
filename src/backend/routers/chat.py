@@ -1,11 +1,11 @@
 import json
 import os
 from distutils.util import strtobool
-from typing import Any, Generator, List, Union
+from typing import Any, Generator, List, Optional, Union
 from uuid import uuid4
 
 from cohere.types import StreamedChatResponse
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.encoders import jsonable_encoder
 from langchain_core.agents import AgentActionMessageLog
 from langchain_core.runnables.utils import AddableDict
@@ -27,6 +27,7 @@ from backend.database_models.message import Message, MessageAgent
 from backend.schemas.chat import (
     BaseChatRequest,
     ChatMessage,
+    ChatResponse,
     ChatResponseEvent,
     ChatRole,
     NonStreamedChatResponse,
@@ -154,6 +155,89 @@ async def chat(
         user_id,
         should_store=should_store,
     )
+
+
+@router.post(
+    "/chat/auto-summary/{conversation_id}",
+    dependencies=[Depends(validate_deployment_header)],
+)
+async def summarize_chat(
+    session: DBSessionDep,
+    conversation_id: str,
+    request: Request,
+):
+    def _gen_response(text: str, is_finished: bool = True):
+        return NonStreamedChatResponse(
+            text=text,
+            response_id="",
+            generation_id="",
+            chat_history=[],
+            finish_reason="",
+            citations=[],
+            search_queries=[],
+            documents=[],
+            search_results=[],
+            event_type=StreamEvent.NON_STREAMED_CHAT_RESPONSE,
+            is_finished=is_finished,
+            conversation_id=conversation_id,
+        )
+    user_id = request.headers.get("X-Ms-Client-Principal-Id", "user-id")
+    deployment_name = request.headers.get("Deployment-Name", "")
+    conversation = conversation_crud.get_conversation(session, conversation_id, user_id)
+
+    if not conversation:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Conversation with ID: {conversation_id} not found.",
+        )
+
+    if conversation.title:
+        return _gen_response(conversation.title)
+
+    text_messages = [message for message in conversation.messages]
+    chat_history = [message.text for message in text_messages[-6:]]
+
+    if len(chat_history) < 4:
+        return _gen_response("")
+
+    chat_content = f"""
+        Provide single line desciption of context provided with following rules.
+
+        <context>{os.linesep.join(chat_history)}</context>
+
+        <rules>
+        1. Must be as simple as possible
+        2. Must be under 10 words
+        3. Must be in single line
+        4. No pronouns should be used
+        5. In format of "Subject verb object"
+        </rules>
+        """
+    summary_request = CohereChatRequest(
+        message=chat_content,
+        preamble="You are an assistant that helps summarize conversations, all information must base on the context.",
+        temperature=0,
+        chat_history=[],
+    )
+    model_deployment_response: Generator[
+        StreamedChatResponse, None, None
+    ] = CustomChat().chat(
+        summary_request,
+        stream=False,
+        deployment_name=deployment_name,
+    )
+    if not isinstance(model_deployment_response, dict):
+        response = model_deployment_response.__dict__
+    else:
+        response = model_deployment_response
+    title = response.get("text", "")
+    new_conversation = UpdateConversation(
+        title=title,
+        user_id=conversation.user_id,
+    )
+
+    conversation_crud.update_conversation(session, conversation, new_conversation)
+    return _gen_response(conversation.title)
 
 
 def process_chat(

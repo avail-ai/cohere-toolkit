@@ -13,7 +13,7 @@ class Conversation(Base):
 
     # TODO: Swap to foreign key once User management implemented
     user_id: Mapped[str] = mapped_column(String)
-    title: Mapped[str] = mapped_column(String, default="New Conversation")
+    title: Mapped[str] = mapped_column(String, default="")
     description: Mapped[str] = mapped_column(String, nullable=True, default=None)
 
     text_messages: Mapped[List["Message"]] = relationship()

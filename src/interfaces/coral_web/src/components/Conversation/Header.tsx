@@ -11,10 +11,12 @@ import { useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useIsGroundingOn } from '@/hooks/grounding';
-import { useCitationsStore, useConversationStore, useSettingsStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
+import { DEFAULT_CONVERSATION_NAME } from '@/constants';
 
 const useMenuItems = ({ conversationId }: { conversationId?: string }) => {
+  const { setParams } = useParamsStore();
   const { deleteConversation } = useConversationActions();
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
@@ -58,6 +60,7 @@ const useMenuItems = ({ conversationId }: { conversationId?: string }) => {
           router.push('/', undefined, { shallow: true });
           resetConversation();
           resetCitations();
+          setParams({ fileIds: [], tools: [] });
         },
       },
     ];
@@ -127,7 +130,7 @@ export const Header: React.FC<Props> = ({ conversationId, isStreaming }) => {
           )}
 
           <Text className="truncate" styleAs="p-lg" as="span">
-            {name}
+            {name || DEFAULT_CONVERSATION_NAME}
           </Text>
         </span>
         <span className="flex items-center gap-x-2 py-4 pl-4 md:pl-0">

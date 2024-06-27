@@ -1,5 +1,5 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import {
   ChatResponseEvent,
@@ -22,7 +22,7 @@ import {
 } from '@/cohere-client';
 import { DEPLOYMENT_COHERE_PLATFORM, TOOL_PYTHON_INTERPRETER_ID } from '@/constants';
 import { useRouteChange } from '@/hooks/route';
-import { StreamingChatParams, useStreamChat } from '@/hooks/streamChat';
+import { StreamingChatParams, useStreamChat, useSummarizeChat } from '@/hooks/streamChat';
 import { useCitationsStore, useConversationStore, useFilesStore, useParamsStore } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import {
@@ -68,12 +68,14 @@ export type HandleSendChat = (
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
+  const { mutateAsync: chatSummarize } = useSummarizeChat();
+
 
   const {
     params: { temperature, tools, model, deployment, fileIds },
   } = useParamsStore();
   const {
-    conversation: { id, messages },
+    conversation: { id, messages, name },
     setConversation,
     setPendingMessage,
   } = useConversationStore();
@@ -318,6 +320,12 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 toolEvents,
               });
 
+              if (!name) {
+                chatSummarize({ conversationId, headers }).then(({ text }) => {
+                  setConversation({ name: text });
+                  queryClient.invalidateQueries({ queryKey: ['conversations'] });
+                });
+              }
               break;
             }
           }
@@ -415,9 +423,11 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const getChatRequest = (message: string, overrides?: ChatRequestOverrides): CohereChatRequest => {
     const { tools: overrideTools, ...restOverrides } = overrides ?? {};
     const files = [...composerFileIds, ...(fileIds || [])];
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlConversationId = urlParams.get('c') || undefined
     return {
       message,
-      conversation_id: id,
+      conversation_id: id || urlConversationId,
       tools: !!overrideTools?.length
         ? overrideTools
         : tools && tools.length > 0

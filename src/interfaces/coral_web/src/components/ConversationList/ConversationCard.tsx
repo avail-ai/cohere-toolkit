@@ -7,6 +7,7 @@ import { getIsTouchDevice, useIsDesktop } from '@/hooks/breakpoint';
 import { useConversationActions } from '@/hooks/conversation';
 import { useConversationStore, useSettingsStore } from '@/stores';
 import { cn } from '@/utils';
+import { DEFAULT_CONVERSATION_NAME } from '@/constants';
 
 export type ConversationListItem = {
   conversationId: string;
@@ -56,7 +57,6 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   const { title, conversationId, description } = conversation;
   const { setSettings } = useSettingsStore();
   const {
-    conversation: { name: conversationName },
     setConversation,
   } = useConversationStore();
   const isDesktop = useIsDesktop();
@@ -66,7 +66,7 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   // from the context store, otherwise we use the name from the conversation object
   // this is to ensure that we use the typed animation
   // @see "handleUpdateConversationTitle" in hooks/chat.ts
-  const name = title || conversationName;
+  const name = title || DEFAULT_CONVERSATION_NAME;
 
   const menuItems = useMenuItems({ conversationId, name: name! });
 

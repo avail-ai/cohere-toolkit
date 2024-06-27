@@ -9,14 +9,16 @@ import {
   isLoadingMessage,
   isTypingMessage,
 } from '@/types/message';
+import { File as CohereFile } from '@/cohere-client';
 
 import { StoreState } from '..';
 
 const INITIAL_STATE: State = {
   id: undefined,
-  name: DEFAULT_CONVERSATION_NAME,
+  name: '',
   messages: [],
   isSessionAvailable: true,
+  files: [],
 };
 
 type State = {
@@ -24,6 +26,7 @@ type State = {
   name?: string;
   isSessionAvailable: boolean;
   messages: ChatMessage[];
+  files: CohereFile[];
 };
 
 type Actions = {

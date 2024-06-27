@@ -72,7 +72,6 @@ services:
     environment:
       NEXT_PUBLIC_API_HOSTNAME: ${NEXT_PUBLIC_API_HOSTNAME}
 
-    restart: always
     ports:
       - 4000:4000
     develop:

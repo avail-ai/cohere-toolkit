@@ -20,9 +20,9 @@ const Files: React.FC = () => {
     setParams
   } = useParamsStore();
   const { isFileInputQueuedToFocus, focusFileInput } = useFocusFileInput();
-  const { files, removeFile } = useFilesInConversation();
+  const { removeFile } = useFilesInConversation();
   const {
-    conversation: { id: conversationId }
+    conversation: { id: conversationId, files }
   } = useConversationStore();
 
   useEffect(() => {

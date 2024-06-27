@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useMemo } from 'react';
 
-import { File as CohereFile, ListFile, useCohereClient } from '@/cohere-client';
+import { ListFile, useCohereClient } from '@/cohere-client';
 import { ACCEPTED_FILE_TYPES } from '@/constants';
 import { useNotify } from '@/hooks/toast';
 import { useConversationStore, useFilesStore, useParamsStore } from '@/stores';
@@ -40,14 +39,6 @@ export const useFilesInConversation = () => {
     setConversation
   } = useConversationStore();
   const { deleteFile } = useFileActions();
-  const files = useMemo<CohereFile[]>(() => {
-    return messages.reduce<CohereFile[]>((filesInConversation, msg) => {
-      if (msg.type === MessageType.USER && msg.files) {
-        filesInConversation.push(...msg.files);
-      }
-      return filesInConversation;
-    }, []);
-  }, [messages]);
 
   const removeFile = (fileId: string, conversationId: string) => {
     deleteFile({ fileId: fileId, conversationId: conversationId }).then(() => {
@@ -61,7 +52,7 @@ export const useFilesInConversation = () => {
     });
   };
 
-  return { files, removeFile };
+  return { removeFile };
 };
 
 export const useUploadFile = () => {
@@ -109,13 +100,13 @@ export const useFileActions = () => {
     updateUploadingFileError,
   } = useFilesStore();
   const {
-    params: { fileIds },
+    params: { fileIds, uploadProcess },
     setParams,
   } = useParamsStore();
   const { mutateAsync: uploadFile } = useUploadFile();
   const { mutateAsync: deleteFile } = useDeleteUploadedFile();
   const { error } = useNotify();
-  const { setConversation } = useConversationStore();
+  const queryClient = useQueryClient();
 
   const handleUploadFile = async (file?: File, conversationId?: string) => {
     if (!file) return;
@@ -127,6 +118,9 @@ export const useFileActions = () => {
       error: '',
       progress: 0,
     };
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlConversationId = urlParams.get('c') || undefined
+    conversationId = conversationId || urlConversationId;
 
     const fileExtension = getFileExtension(file.name);
     const isAcceptedExtension = ACCEPTED_FILE_TYPES.some(
@@ -141,7 +135,13 @@ export const useFileActions = () => {
     addUploadingFile(newUploadingFile);
 
     try {
-      const uploadedFile = await uploadFile({ file: newUploadingFile.file, conversationId });
+      if (uploadProcess) {
+        await uploadProcess
+      }
+
+      const process = uploadFile({ file: newUploadingFile.file, conversationId });
+      setParams({ uploadProcess: process });
+      const uploadedFile = await process;
 
       if (!uploadedFile?.id) {
         throw new FileUploadError('File ID not found');
@@ -153,7 +153,8 @@ export const useFileActions = () => {
       setParams({ fileIds: newFileIds });
       addComposerFile(uploadedFile);
       if (!conversationId) {
-        setConversation({ id: uploadedFile.conversation_id });
+        window?.history?.replaceState('', '', `?c=${uploadedFile.conversation_id}`);
+        queryClient.invalidateQueries({ queryKey: ['conversations'] });
       }
 
       return newFileIds;

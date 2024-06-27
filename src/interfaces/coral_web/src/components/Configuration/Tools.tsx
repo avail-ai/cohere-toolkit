@@ -1,7 +1,6 @@
 import React from 'react';
 
 import { FilesSection } from '@/components/Configuration/Files';
-import { useFilesInConversation } from '@/hooks/files';
 import { useConversationStore } from '@/stores';
 import { cn } from '@/utils';
 
@@ -10,9 +9,8 @@ import { cn } from '@/utils';
  */
 export const Tools: React.FC<{ className?: string }> = ({ className = '' }) => {
   const {
-    conversation: { id: conversationId },
+    conversation: { id: conversationId, files },
   } = useConversationStore();
-  const { files } = useFilesInConversation();
   return (
     <article className={cn('flex flex-col pb-10', className)}>
       {/* File upload is not supported for conversarions without an id */}

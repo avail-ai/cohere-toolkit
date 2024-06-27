@@ -10,16 +10,16 @@ const INITIAL_STATE = {
   preamble: 'Reply base on file uploaded',
   tools: [],
   fileIds: [],
-  filesConversationId: undefined,
   deployment: undefined,
+  uploadProcess: undefined,
 };
 
 export type ConfigurableParams = Pick<CohereChatRequest, 'temperature' | 'tools'> & {
   preamble: string;
   fileIds: CohereChatRequest['file_ids'];
-  filesConversationId?: string;
   model?: string;
   deployment?: string;
+  uploadProcess?: Promise<any>;
 };
 
 type State = ConfigurableParams;

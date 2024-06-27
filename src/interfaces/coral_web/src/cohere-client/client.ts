@@ -144,6 +144,31 @@ export class CohereClient {
     return body as ListFile[];
   }
 
+  public async summarizeChat({ conversationId, headers }: {
+    conversationId: string,
+    headers?: Record<string, string>;
+  }): Promise<{text: string}> {
+    const response = await this.fetch(
+      `${this.getEndpoint('chat')}/auto-summary/${conversationId}`,
+      {
+        method: 'POST',
+        headers: { ...this.getHeaders(), ...headers },
+        body: JSON.stringify({}),
+      }
+    );
+
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw new CohereNetworkError(
+        body?.message || body?.error || 'Something went wrong',
+        response.status
+      );
+    }
+
+    return body as {text: string};
+  }
+
   public async chat({
     request,
     headers,
@@ -398,6 +423,7 @@ export class CohereClient {
       | 'tools'
       | 'deployments'
       | 'experimental_features'
+      | 'chat'
   ) {
     return `${this.hostname}/v1/${endpoint}`;
   }

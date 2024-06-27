@@ -12,7 +12,7 @@ import { ACCEPTED_FILE_TYPES, ReservedClasses } from '@/constants';
 import { useChatHotKeys } from '@/hooks/actions';
 import { useFocusComposer } from '@/hooks/actions';
 import { useChat } from '@/hooks/chat';
-import { useFileActions, useFilesInConversation } from '@/hooks/files';
+import { useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useRouteChange } from '@/hooks/route';
 import { useListTools } from '@/hooks/tools';
@@ -47,30 +47,23 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
     setSettings,
   } = useSettingsStore();
   const {
-    conversation: { messages },
+    conversation: { messages, files },
   } = useConversationStore();
   const {
     citations: { selectedCitation },
     selectCitation,
   } = useCitationsStore();
   const { data: tools } = useListTools();
-  const { files } = useFilesInConversation();
+
   const {
     files: { composerFiles },
   } = useFilesStore();
   const { params, setParams } = useParamsStore();
 
   useEffect(() => {
-    if (conversationId !== params.filesConversationId) {
-      setParams({ fileIds: [], filesConversationId: undefined });
-    }
-  }, [conversationId, params.filesConversationId])
-
-  useEffect(() => {
-    if (!params.filesConversationId && files.length > 0) {
+    if (files.length > 0) {
       setParams({
-        fileIds: files.map((f) => f.id),
-        filesConversationId: conversationId
+        fileIds: files.map((f) => f.id)
       });
     }
   }, [files]);
@@ -153,7 +146,7 @@ const Conversation: React.FC<Props> = ({ conversationId, startOptionsEnabled = f
     if (isDefaultFileLoaderToolEnabled) return;
 
     const newTools = uniqBy([...(params.tools ?? []), defaultFileLoaderTool], 'name');
-    setParams({ tools: newTools });
+    setParams({ tools: newTools.map((tool) => ({ name: tool.name })) });
   };
 
   const handleUploadFile = async (e: React.ChangeEvent<HTMLInputElement>) => {

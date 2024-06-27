@@ -133,3 +133,27 @@ export const useStreamChat = () => {
     abortController: abortControllerRef,
   };
 };
+
+export const useSummarizeChat = () => {
+  const client = useCohereClient();
+  const queryClient = useQueryClient();
+  return useMutation<
+    { text: string },
+    CohereNetworkError,
+    { conversationId: string, headers: Record<string, string>; }
+  >({
+    mutationFn: async (request) => {
+      try {
+        return await client.summarizeChat(request);
+      } catch (e) {
+        console.error(e);
+        throw e;
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['conversations']
+      });
+    },
+  });
+};

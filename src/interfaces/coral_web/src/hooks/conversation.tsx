@@ -13,8 +13,9 @@ import { DeleteConversations } from '@/components/Modals/DeleteConversations';
 import { EditConversationTitle } from '@/components/Modals/EditConversationTitle';
 import { useContextStore } from '@/context';
 import { useNotify } from '@/hooks/toast';
-import { useCitationsStore, useConversationStore } from '@/stores';
+import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { isAbortError } from '@/utils';
+import { useFileActions } from './files';
 
 export const useConversations = () => {
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -117,11 +118,13 @@ export const useDeleteConversation = () => {
 export const useConversationActions = () => {
   const router = useRouter();
   const { open, close } = useContextStore();
+  const { setParams } = useParamsStore();
   const {
     conversation: { id: conversationId = '' },
     resetConversation,
   } = useConversationStore();
   const { resetCitations } = useCitationsStore();
+  const { clearComposerFiles } = useFileActions();
   const notify = useNotify();
   const { mutateAsync: deleteConversation, isPending } = useDeleteConversation();
 
@@ -136,9 +139,14 @@ export const useConversationActions = () => {
       close();
       onComplete?.();
 
-      if (id === conversationId) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlConversationId = urlParams.get('c') || undefined
+
+      if (id === conversationId || id === urlConversationId) {
         resetConversation();
+        setParams({ fileIds: [], tools: [] });
         resetCitations();
+        clearComposerFiles();
         router.push('/', undefined, { shallow: true }); // go to new chat
       }
     };
