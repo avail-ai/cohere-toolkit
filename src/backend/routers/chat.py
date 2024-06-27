@@ -197,7 +197,7 @@ async def summarize_chat(
     text_messages = [message for message in conversation.messages]
     chat_history = [message.text for message in text_messages[-6:]]
 
-    if len(chat_history) < 4:
+    if len(chat_history) < 2:
         return _gen_response("")
 
     chat_content = f"""
