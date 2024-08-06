@@ -9,9 +9,9 @@ const isUUID = (value: string) => {
  * @description This function is used to parse the slug from the URL and return the agentId and conversationId.
  * The slug can be in the following formats:
  * - [] - /
- * - [c, :conversationId] - /c/:conversationId
- * - [a, :agentId] - /a/:agentId
- * - [a, :agentId, c, :conversationId] - /a/:agentId/c/:conversationId
+ * - [c, :conversationId] - /?c=:conversationId
+ * - [a, :agentId] - /?a=:agentId
+ * - [a, :agentId, c, :conversationId] - /?a=:agentId&c=:conversationId
  */
 export const getSlugRoutes = (
   slugParams?: string | string[]
@@ -35,16 +35,16 @@ export const getSlugRoutes = (
     return { agentId: undefined, conversationId: undefined };
   }
 
-  // [/c/:conversationId]
+  // [/?c=:conversationId]
   if (firstQuery === 'c' && isUUID(secondQuery)) {
     return { agentId: undefined, conversationId: secondQuery };
   }
 
-  // [/a/:agentId]
+  // [/?a=:agentId]
   if (firstQuery === 'a' && isUUID(secondQuery) && !thirdQuery) {
     return { agentId: secondQuery, conversationId: undefined };
   }
-  // [/a/:agentId/c/:conversationId]
+  // [/?a=:agentId&c=:conversationId]
   if (firstQuery === 'a' && isUUID(secondQuery) && thirdQuery === 'c' && isUUID(fourthQuery)) {
     return { agentId: secondQuery, conversationId: fourthQuery };
   }

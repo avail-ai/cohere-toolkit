@@ -53,14 +53,6 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     resetFileParams();
   };
 
-  const handleOpenShareModal = () => {
-    if (!conversationId) return;
-    open({
-      title: 'Share link to conversation',
-      content: <ShareModal conversationId={conversationId} />,
-    });
-  };
-
   const handleToggleConfigSettings = () => {
     setSettings({ isConfigDrawerOpen: !isConfigDrawerOpen });
 
@@ -92,11 +84,6 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
       onClick: handleToggleConfigSettings,
     },
     {
-      label: 'Share',
-      iconName: 'share',
-      onClick: handleOpenShareModal,
-    },
-    {
       label: 'New chat',
       iconName: 'new-message',
       onClick: handleNewChat,
@@ -107,7 +94,6 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     menuItems,
     isAgentCreator,
     handleNewChat,
-    handleOpenShareModal,
     handleToggleConfigSettings,
     handleOpenAgentDrawer,
   };
@@ -141,7 +127,6 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
     menuItems,
     isAgentCreator,
     handleNewChat,
-    handleOpenShareModal,
     handleToggleConfigSettings,
     handleOpenAgentDrawer,
   } = useHeaderMenu({
@@ -194,14 +179,6 @@ export const Header: React.FC<Props> = ({ isStreaming, agentId }) => {
             iconName="new-message"
             onClick={handleNewChat}
           />
-          {id && (
-            <IconButton
-              tooltip={{ label: 'Share', placement: 'bottom-end', size: 'md' }}
-              className="hidden md:flex"
-              iconName="share"
-              onClick={handleOpenShareModal}
-            />
-          )}
           <div className="relative">
             <IconButton
               tooltip={{ label: 'Settings', placement: 'bottom-end', size: 'md' }}

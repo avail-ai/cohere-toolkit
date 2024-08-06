@@ -1,5 +1,6 @@
 import { UseMutateAsyncFunction, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
+import { useRouter } from 'next/router';
 
 import {
   ChatResponseEvent,
@@ -49,6 +50,7 @@ import {
 } from '@/utils';
 import { replaceCodeBlockWithIframe } from '@/utils/preview';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import { log } from 'console';
 
 const USER_ERROR_MESSAGE = 'Something went wrong. This has been reported. ';
 const ABORT_REASON_USER = 'USER_ABORTED';
@@ -75,6 +77,7 @@ export type HandleSendChat = (
 export const useChat = (config?: { onSend?: (msg: string) => void }) => {
   const { chatMutation, abortController } = useStreamChat();
   const { mutateAsync: streamChat } = chatMutation;
+  const router = useRouter();
 
   const {
     params: { temperature, tools, model, deployment, deploymentConfig, fileIds },
@@ -424,12 +427,14 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
                 setConversation({ id: conversationId });
               }
               // Make sure our URL is up to date with the conversationId
-              if (!window.location.pathname.includes(`c/${conversationId}`) && conversationId) {
-                const newUrl =
-                  window.location.pathname === '/'
-                    ? `c/${conversationId}`
-                    : window.location.pathname + `/c/${conversationId}`;
-                window?.history?.replaceState('', '', newUrl);
+              if (!window.location.search.includes(`c=${conversationId}`) && conversationId) {
+                router.replace({
+                  pathname: router.pathname,
+                  query: {
+                    ...router.query,
+                    c: conversationId,
+                  },
+                }, undefined, { shallow: true });
                 queryClient.invalidateQueries({ queryKey: ['conversations'] });
               }
 
@@ -456,38 +461,44 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
 
               const finalText = isRAGOn
                 ? replaceTextWithCitations(
-                    // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
-                    // because the final response doesn't give us the full text yet. Note - this means that
-                    // citations will only appear for the first 'block' of text generated.
-                    transformedText,
-                    citations,
-                    generationId
-                  )
+                  // TODO(@wujessica): temporarily use the text generated from the stream when MAX_TOKENS
+                  // because the final response doesn't give us the full text yet. Note - this means that
+                  // citations will only appear for the first 'block' of text generated.
+                  transformedText,
+                  citations,
+                  generationId
+                )
                 : botResponse;
 
-              setStreamingMessage({
-                type: MessageType.BOT,
-                state: BotState.FULFILLED,
-                generationId,
-                // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
-                // so we need to manually apply this fix. Otherwise, this comes for free when we call
-                // `replaceTextWithCitations`.
-                text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
-                citations,
-                isRAGOn,
-                originalText: isRAGOn ? responseText : botResponse,
-                toolEvents,
+              setStreamingMessage(null);
+              setConversation({
+                messages: [
+                  ...newMessages,
+                  {
+                    type: MessageType.BOT,
+                    state: BotState.FULFILLED,
+                    generationId,
+                    // TODO(@wujessica): TEMPORARY - we don't pass citations for langchain multihop right now
+                    // so we need to manually apply this fix. Otherwise, this comes for free when we call
+                    // `replaceTextWithCitations`.
+                    text: citations.length > 0 ? finalText : fixMarkdownImagesInText(transformedText),
+                    citations,
+                    isRAGOn,
+                    originalText: isRAGOn ? responseText : botResponse,
+                    toolEvents,
+                  }]
               });
 
               if (shouldUpdateConversationTitle(newMessages)) {
                 handleUpdateConversationTitle(conversationId);
               }
 
+              setIsStreaming(false);
               break;
             }
           }
         },
-        onHeaders: () => {},
+        onHeaders: () => { },
         onFinish: () => {
           setIsStreaming(false);
         },

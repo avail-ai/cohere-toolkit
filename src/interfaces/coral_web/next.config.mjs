@@ -42,6 +42,23 @@ const nextConfig = {
   },
 };
 
+nextConfig.output = 'export';
+nextConfig.distDir = 'build/output';
+nextConfig.trailingSlash = true;
+nextConfig.images = {
+  ...(nextConfig.images || {}),
+  unoptimized: true,
+}
+nextConfig.assetPrefix = '/';
+nextConfig.experimental = {
+  ...(nextConfig.experimental || {}),
+  images: {
+    ...((nextConfig.experimental || {}).images || {}),
+    unoptimized: true,
+  }
+}
+delete nextConfig.redirects;
+
 const getNextConfig = (phase) => {
   if (phase === PHASE_PRODUCTION_BUILD || phase === PHASE_PRODUCTION_SERVER) {
     console.info('Next.js environment variables:', getCommonEnvVars(env));

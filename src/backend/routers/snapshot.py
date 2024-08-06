@@ -19,6 +19,7 @@ from backend.schemas.snapshot import (
     SnapshotLink,
     SnapshotWithLinks,
 )
+from backend.services.auth.utils import get_header_user_id
 from backend.services.snapshot import (
     create_conversation_dict,
     remove_private_keys,
@@ -52,7 +53,7 @@ async def create_snapshot(
     Returns:
         CreateSnapshotResponse: Snapshot creation response.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
     conversation_id = snapshot_request.conversation_id
 
     # Check if conversation exists, if it has messages and if a snapshot already exists
@@ -90,7 +91,7 @@ async def list_snapshots(
     Returns:
         list[Snapshot]: List of all snapshots.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
 
     snapshots = snapshot_crud.list_snapshots(session, user_id)
 
@@ -123,7 +124,7 @@ async def get_snapshot(
     Returns:
         Snapshot: Snapshot with the given link ID.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
 
     snapshot = validate_snapshot_link(session, link_id)
 
@@ -147,7 +148,7 @@ async def delete_snapshot_link(
     Returns:
         Any: Empty response.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
 
     snapshot = validate_snapshot_link(session, link_id)
 
@@ -178,7 +179,7 @@ async def delete_snapshot(
     Returns:
         Any: Empty response.
     """
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
 
     snapshot = validate_snapshot_exists(session, snapshot_id)
 

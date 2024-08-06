@@ -75,6 +75,7 @@ class CustomChat(BaseChat):
                     )
                     break
         except Exception as e:
+            logger.exception("Error in chat flow")
             yield {
                 "event_type": StreamEvent.STREAM_END,
                 "finish_reason": "ERROR",
@@ -259,6 +260,7 @@ class CustomChat(BaseChat):
                 user_id=kwargs.get("user_id"),
                 trace_id=kwargs.get("trace_id"),
                 agent_id=kwargs.get("agent_id"),
+                conversation_id=kwargs.get("conversation_id"),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list

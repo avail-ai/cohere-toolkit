@@ -124,11 +124,7 @@ const Conversation: React.FC<Props> = ({
     };
   }, [handleClickOutside]);
 
-  const [isRouteChanging] = useRouteChange({
-    onRouteChangeStart: () => {
-      resetConversation();
-    },
-  });
+  const [isRouteChanging] = useRouteChange();
 
   if (isRouteChanging) {
     return (

@@ -165,7 +165,7 @@ export const Composer: React.FC<Props> = ({
 
   return (
     <div className="flex w-full flex-col">
-      {!agentId && <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onSend} />}
+      {!agentId && <FirstTurnSuggestions isFirstTurn={isFirstTurn} onSuggestionClick={onChange} />}
       <div
         className={cn(
           'relative flex w-full flex-col',

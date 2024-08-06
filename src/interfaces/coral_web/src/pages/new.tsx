@@ -6,7 +6,6 @@ import { AgentsList } from '@/components/Agents/AgentsList';
 import { CreateAgent } from '@/components/Agents/CreateAgent';
 import { AgentsLayout, LeftSection, MainSection } from '@/components/Layout';
 import { ProtectedPage } from '@/components/ProtectedPage';
-import { appSSR } from '@/pages/_app';
 
 type Props = {};
 
@@ -25,19 +24,5 @@ const AgentsNewPage: NextPage<Props> = () => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
-};
 
 export default AgentsNewPage;

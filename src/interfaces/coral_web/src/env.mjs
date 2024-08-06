@@ -5,10 +5,10 @@ import z from 'zod';
 export const env = createEnv({
   server: {},
   client: {
-    NEXT_PUBLIC_API_HOSTNAME: z.string(),
-    NEXT_PUBLIC_FRONTEND_HOSTNAME: z.string().optional().default('http://localhost:4000'),
-    NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: z.string().optional(),
-    NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: z.string().optional(),
+    NEXT_PUBLIC_API_HOSTNAME: z.string().transform((s) => s.trim()),
+    NEXT_PUBLIC_FRONTEND_HOSTNAME: z.string().optional().default('http://localhost:4000').transform((s) => s.trim()),
+    NEXT_PUBLIC_GOOGLE_DRIVE_CLIENT_ID: z.string().optional().transform((s) => s.trim()),
+    NEXT_PUBLIC_GOOGLE_DRIVE_DEVELOPER_KEY: z.string().optional().transform((s) => s.trim()),
     NEXT_PUBLIC_HAS_CUSTOM_LOGO: z.string().optional().default('false'),
     NEXT_PUBLIC_DARK_MODE: z
       .string()

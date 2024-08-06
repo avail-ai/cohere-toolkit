@@ -12,6 +12,7 @@ from backend.database_models.database import DBSessionDep
 from backend.schemas.chat import ChatResponseEvent, NonStreamedChatResponse
 from backend.schemas.cohere_chat import CohereChatRequest
 from backend.schemas.langchain_chat import LangchainChatRequest
+from backend.services.auth.utils import get_header_user_id
 from backend.services.chat import (
     generate_chat_response,
     generate_chat_stream,
@@ -48,7 +49,7 @@ async def chat_stream(
         trace_id = request.state.trace_id
     print("trace_id", trace_id)
 
-    user_id = request.headers.get("User-Id", None)
+    user_id = get_header_user_id(request)
     agent_id = chat_request.agent_id
     (
         session,
@@ -114,7 +115,7 @@ async def chat(
     if hasattr(request.state, "trace_id"):
         trace_id = request.state.trace_id
 
-    user_id = request.headers.get("User-Id", None)
+    user_id = get_header_user_id(request)
     agent_id = chat_request.agent_id
 
     (

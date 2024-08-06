@@ -102,7 +102,7 @@ def get_files_by_ids(db: Session, file_ids: list[str], user_id: str) -> list[Fil
 
 
 def get_files_by_file_names(
-    db: Session, file_names: list[str], user_id: str
+    db: Session, file_names: list[str], user_id: str, conversation_id: str | None = None
 ) -> list[File]:
     """
     Get files by file names.
@@ -111,13 +111,19 @@ def get_files_by_file_names(
         db (Session): Database session.
         file_names (list[str]): File names.
         user_id (str): User ID.
+        conversation_id (str | None): Optional, Conversation ID.
 
     Returns:
         list[File]: List of files with the given file names.
     """
-    return (
+    query = (
         db.query(File)
         .filter(File.file_name.in_(file_names), File.user_id == user_id)
+    )
+    if conversation_id:
+        query = query.filter(File.conversation_id == conversation_id)
+    return (
+        query
         .all()
     )
 

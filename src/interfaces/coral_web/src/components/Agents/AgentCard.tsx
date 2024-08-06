@@ -38,11 +38,11 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const route = router.asPath;
   const isActive = isBaseAgent
     ? conversationId
-      ? route === `/c/${conversationId}`
+      ? route === `/?c=${conversationId}`
       : route === '/'
     : conversationId
-    ? route === `/a/${id}/c/${conversationId}`
-    : route === `/a/${id}`;
+    ? route === `/?a=${id}&c=${conversationId}`
+    : route === `/?a=${id}`;
 
   const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();

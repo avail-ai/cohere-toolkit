@@ -127,7 +127,7 @@ export const useConversationActions = () => {
         resetConversation();
         resetCitations();
         resetFileParams();
-        const newUrl = router.asPath.replace(`/c/${id}`, '');
+        const newUrl = router.asPath.replace(`c=${id}`, '');
         router.push(newUrl, undefined, { shallow: true }); // go to new chat
       }
     };

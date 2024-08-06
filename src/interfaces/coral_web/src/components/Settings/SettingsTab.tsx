@@ -45,14 +45,14 @@ export const SettingsTab: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-y-6 px-5 pb-10">
-      <Dropdown
+      {/* <Dropdown
         className="w-full"
         label="Model"
         kind="default"
         value={model}
         onChange={(model: string) => setParams({ model })}
         optionGroups={modelOptions}
-      />
+      /> */}
       <Slider
         className="w-full"
         label="Temperature"

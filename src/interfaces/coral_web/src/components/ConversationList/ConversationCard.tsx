@@ -94,10 +94,10 @@ export const ConversationCard: React.FC<Props> = ({ isActive, conversation, flip
   );
 
   const conversationUrl = agentId
-    ? `/a/${agentId}/c/${conversationId}`
-    : router.asPath.includes('/a')
-    ? `/a/c/${conversationId}`
-    : `/c/${conversationId}`;
+    ? `/?a=${agentId}&c=${conversationId}`
+    : router.query.a
+    ? `/?a=&c=${conversationId}`
+    : `/?c=${conversationId}`;
 
   const wrapperClassName = cn('flex w-full flex-col gap-y-1 pr-2 py-3 truncate');
   const conversationLink =
