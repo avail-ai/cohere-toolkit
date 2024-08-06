@@ -4,12 +4,14 @@ from distutils.util import strtobool
 from enum import StrEnum
 
 from backend.model_deployments import (
-    AzureDeployment,
-    BedrockDeployment,
+    # AzureDeployment,
+    # BedrockDeployment,
     CohereDeployment,
-    SageMakerDeployment,
-    SingleContainerDeployment,
+    # SageMakerDeployment,
+    # SingleContainerDeployment,
+    OpenAIAzureDeployment,
 )
+from backend.model_deployments.openai.azure import AZURE_OPENAI_ENV_VARS
 from backend.model_deployments.azure import AZURE_ENV_VARS
 from backend.model_deployments.bedrock import BEDROCK_ENV_VARS
 from backend.model_deployments.cohere_platform import COHERE_ENV_VARS
@@ -37,34 +39,41 @@ ALL_MODEL_DEPLOYMENTS = {
         is_available=CohereDeployment.is_available(),
         env_vars=COHERE_ENV_VARS,
     ),
-    ModelDeploymentName.SingleContainer: Deployment(
-        name=ModelDeploymentName.SingleContainer,
-        deployment_class=SingleContainerDeployment,
-        models=SingleContainerDeployment.list_models(),
-        is_available=SingleContainerDeployment.is_available(),
-        env_vars=SC_ENV_VARS,
-    ),
-    ModelDeploymentName.SageMaker: Deployment(
-        name=ModelDeploymentName.SageMaker,
-        deployment_class=SageMakerDeployment,
-        models=SageMakerDeployment.list_models(),
-        is_available=SageMakerDeployment.is_available(),
-        env_vars=SAGE_MAKER_ENV_VARS,
-    ),
     ModelDeploymentName.Azure: Deployment(
         name=ModelDeploymentName.Azure,
-        deployment_class=AzureDeployment,
-        models=AzureDeployment.list_models(),
-        is_available=AzureDeployment.is_available(),
-        env_vars=AZURE_ENV_VARS,
+        deployment_class=OpenAIAzureDeployment,
+        models=OpenAIAzureDeployment.list_models(),
+        is_available=OpenAIAzureDeployment.is_available(),
+        env_vars=AZURE_OPENAI_ENV_VARS,
     ),
-    ModelDeploymentName.Bedrock: Deployment(
-        name=ModelDeploymentName.Bedrock,
-        deployment_class=BedrockDeployment,
-        models=BedrockDeployment.list_models(),
-        is_available=BedrockDeployment.is_available(),
-        env_vars=BEDROCK_ENV_VARS,
-    ),
+    # ModelDeploymentName.SingleContainer: Deployment(
+    #     name=ModelDeploymentName.SingleContainer,
+    #     deployment_class=SingleContainerDeployment,
+    #     models=SingleContainerDeployment.list_models(),
+    #     is_available=SingleContainerDeployment.is_available(),
+    #     env_vars=SC_ENV_VARS,
+    # ),
+    # ModelDeploymentName.SageMaker: Deployment(
+    #     name=ModelDeploymentName.SageMaker,
+    #     deployment_class=SageMakerDeployment,
+    #     models=SageMakerDeployment.list_models(),
+    #     is_available=SageMakerDeployment.is_available(),
+    #     env_vars=SAGE_MAKER_ENV_VARS,
+    # ),
+    # ModelDeploymentName.Azure: Deployment(
+    #     name=ModelDeploymentName.Azure,
+    #     deployment_class=AzureDeployment,
+    #     models=AzureDeployment.list_models(),
+    #     is_available=AzureDeployment.is_available(),
+    #     env_vars=AZURE_ENV_VARS,
+    # ),
+    # ModelDeploymentName.Bedrock: Deployment(
+    #     name=ModelDeploymentName.Bedrock,
+    #     deployment_class=BedrockDeployment,
+    #     models=BedrockDeployment.list_models(),
+    #     is_available=BedrockDeployment.is_available(),
+    #     env_vars=BEDROCK_ENV_VARS,
+    # ),
 }
 
 
