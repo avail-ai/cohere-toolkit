@@ -193,7 +193,7 @@ export const useChat = (config?: { onSend?: (msg: string) => void }) => {
       // only update the conversation name if the user is still on the same conversation
       // usage of window.location instead of router is due of replacing the url through
       // window.history in ConversationsContext.
-      if (window?.location.pathname.includes(conversationId)) {
+      if (router.query.c === conversationId) {
         setConversation({ name: title.slice(0, i + 1) });
       }
     }

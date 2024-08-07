@@ -1,6 +1,6 @@
 import { Transition } from '@headlessui/react';
 import { NextPage } from 'next';
-import { useContext, useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 
 import { Document, ManagedTool } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
@@ -30,10 +30,12 @@ import {
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import { useFileActions } from '@/hooks/files';
 
 const Page: NextPage = () => {
   const { agentId, conversationId } = useSlugRoutes();
 
+  const prevConversationId = useRef<string>();
   const { setConversation } = useConversationStore();
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
@@ -43,6 +45,7 @@ const Page: NextPage = () => {
   const isMobile = !isDesktop;
 
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
+  const { clearComposerFiles } = useFileActions();
   const {
     params: { deployment },
     setParams,
@@ -86,8 +89,12 @@ const Page: NextPage = () => {
   }, [showUnauthedToolsModal]);
 
   useEffect(() => {
-    resetCitations();
-    resetFileParams();
+    if (conversationId && prevConversationId.current && prevConversationId.current !== conversationId) {
+      resetCitations();
+      resetFileParams();
+      clearComposerFiles();
+    }
+    prevConversationId.current = conversationId;
 
     const agentTools = (agent?.tools
       .map((name) => (tools ?? [])?.find((t) => t.name === name))
@@ -95,11 +102,7 @@ const Page: NextPage = () => {
     setParams({
       tools: agentTools,
     });
-
-    if (conversationId) {
-      setConversation({ id: conversationId });
-    }
-  }, [conversationId, setConversation, resetCitations, agent, tools]);
+  }, [conversationId, resetCitations, agent, tools]);
 
   useEffect(() => {
     if (!conversation) return;

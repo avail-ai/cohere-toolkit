@@ -4,12 +4,12 @@ import { useContext } from 'react';
 
 import { IconButton } from '@/components/IconButton';
 import { KebabMenu, KebabMenuItem } from '@/components/KebabMenu';
-import { ShareModal } from '@/components/ShareModal';
 import { Text } from '@/components/Shared';
 import { WelcomeGuideTooltip } from '@/components/WelcomeGuideTooltip';
 import { ModalContext } from '@/context/ModalContext';
 import { useAgent } from '@/hooks/agents';
 import { useIsDesktop } from '@/hooks/breakpoint';
+import { useFileActions } from '@/hooks/files';
 import { WelcomeGuideStep, useWelcomeGuideState } from '@/hooks/ftux';
 import { useSession } from '@/hooks/session';
 import {
@@ -41,6 +41,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     setEditAgentPanelOpen,
   } = useAgentsStore();
   const { resetFileParams } = useParamsStore();
+  const { clearComposerFiles } = useFileActions();
   const router = useRouter();
   const { welcomeGuideState, progressWelcomeGuideStep, finishWelcomeGuide } =
     useWelcomeGuideState();
@@ -51,6 +52,7 @@ const useHeaderMenu = ({ agentId }: { agentId?: string }) => {
     resetConversation();
     resetCitations();
     resetFileParams();
+    clearComposerFiles();
   };
 
   const handleToggleConfigSettings = () => {

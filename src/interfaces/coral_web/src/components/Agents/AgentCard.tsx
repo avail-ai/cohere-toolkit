@@ -7,6 +7,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
+import { useFileActions } from '@/hooks/files';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import {
   useAgentsStore,
@@ -51,6 +52,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
+  const { clearComposerFiles } = useFileActions();
 
   const handleNewChat = () => {
     const url = isBaseAgent ? '/' : id ? `/a/${id}` : '/a';
@@ -59,6 +61,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
     resetConversation();
     resetCitations();
     resetFileParams();
+    clearComposerFiles();
   };
 
   const handleEditAssistant = () => {
