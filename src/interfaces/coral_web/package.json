@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "next dev --port 4000",
-    "build": "next build",
+    "build": "source .env && next build",
     "lint": "next lint",
     "ts-lint": "tsc -noEmit -incremental -watch",
     "format": "prettier --check \"**/*.{js,json,ts,tsx,md}\"",
@@ -96,6 +96,7 @@
     "eslint-config-prettier": "^9.0.0",
     "postcss-100vh-fix": "^1.0.2",
     "prettier": "2.8.7",
-    "prettier-plugin-tailwindcss": "0.4.1"
+    "prettier-plugin-tailwindcss": "0.4.1",
+    "env-cmd": "10.1.0"
   }
 }

@@ -71,7 +71,7 @@ export const Layout: React.FC<LayoutProps> = ({ title = 'Chat', children }) => {
         <NavigationBar>
           <span className="flex items-center gap-x-2">
             <DeploymentsDropdown />
-            <EditEnvVariablesButton className="py-0" />
+            {/* <EditEnvVariablesButton className="py-0" /> */}
             {userMenu}
           </span>
         </NavigationBar>

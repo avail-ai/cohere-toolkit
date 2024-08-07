@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { uniqBy } from 'lodash';
 import { useMemo } from 'react';
+import { useRouter } from 'next/router';
 
 import {
   ApiError,
@@ -86,6 +87,8 @@ export const useDeleteUploadedFile = () => {
 };
 
 export const useFileActions = () => {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const {
     files: { uploadingFiles, composerFiles },
     addUploadingFile,
@@ -132,10 +135,10 @@ export const useFileActions = () => {
       newUploadingFile.error = `File size cannot exceed ${formatFileSize(MAX_FILE_SIZE)}`;
     }
 
-    addUploadingFile(newUploadingFile);
     if (newUploadingFile.error) {
       return;
     }
+    addUploadingFile(newUploadingFile);
 
     try {
       const uploadedFile = await uploadFile({ file: newUploadingFile.file, conversationId });
@@ -151,11 +154,22 @@ export const useFileActions = () => {
       addComposerFile(uploadedFile);
       if (!conversationId) {
         setConversation({ id: uploadedFile.conversation_id });
+        router.replace({
+          pathname: router.pathname,
+          query: {
+            ...router.query,
+            c: uploadedFile.conversation_id,
+          },
+        }, undefined, { shallow: true }); 
+        conversationId = uploadedFile.conversation_id;
       }
+      queryClient.invalidateQueries({ queryKey: ['listFiles', conversationId] });
 
       return newFileIds;
     } catch (e: any) {
       updateUploadingFileError(newUploadingFile, e.message);
+    } finally {
+      deleteUploadingFile(uploadingFileId);
     }
   };
 

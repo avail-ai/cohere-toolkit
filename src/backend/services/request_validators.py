@@ -8,7 +8,7 @@ from backend.config.tools import AVAILABLE_TOOLS
 from backend.crud import agent as agent_crud
 from backend.crud import conversation as conversation_crud
 from backend.database_models.database import DBSessionDep
-from backend.services.auth.utils import get_header_user_id
+from backend.services.auth.utils import get_header_user_id, get_azure_identity_provider_user
 
 
 def validate_user_header(session: DBSessionDep, request: Request):
@@ -24,15 +24,21 @@ def validate_user_header(session: DBSessionDep, request: Request):
 
     """
 
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
     if not user_id:
         raise HTTPException(
             status_code=401, detail="User-Id required in request headers."
         )
 
     user = user_crud.get_user(session, user_id)
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found.")
+    if user:
+        return
+    
+    user = get_azure_identity_provider_user(session, request)
+    if user:
+        return
+
+    raise HTTPException(status_code=401, detail="User not found.")
 
 
 def validate_deployment_header(request: Request):
@@ -67,7 +73,7 @@ async def validate_chat_request(session: DBSessionDep, request: Request):
     """
     # Validate that the agent_id is valid
     body = await request.json()
-    user_id = request.headers.get("User-Id")
+    user_id = get_header_user_id(request)
 
     agent_id = request.query_params.get("agent_id")
     if agent_id:

@@ -25,7 +25,7 @@ export const useSearchConversations = (conversations: ConversationWithoutMessage
       }
       const matchSortedConversations = matchSorter(conversations, search, {
         keys: [
-          { threshold: matchSorter.rankings.CONTAINS, key: 'name' },
+          { threshold: matchSorter.rankings.CONTAINS, key: 'title' },
           { threshold: matchSorter.rankings.CONTAINS, key: 'description' },
         ],
       });

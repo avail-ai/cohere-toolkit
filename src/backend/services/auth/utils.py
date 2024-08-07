@@ -77,5 +77,21 @@ def get_header_user_id(request: Request) -> str:
         return decoded["context"]["id"]
     # Auth disabled
     else:
-        user_id = request.headers.get("User-Id", "")
+        user_id = request.headers.get(
+            "X-Ms-Client-Principal-Id", ""
+        ) or request.headers.get("User-Id", "")
         return user_id
+
+
+def get_azure_identity_provider_user(session: Session, request: Request) -> User:
+
+    id = request.headers.get("X-Ms-Client-Principal-Id")
+    fullname = request.headers.get("X-Ms-Client-Principal-Name")
+
+    user = session.query(User).filter(User.id == id).first()
+
+    if not user:
+        db_user = User(fullname=fullname, id=id)
+        user = user_crud.create_user(session, db_user)
+
+    return user

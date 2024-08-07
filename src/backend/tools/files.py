@@ -62,6 +62,7 @@ class SearchFileTool(BaseTool):
         file_names = parameters.get("filenames")
         session = kwargs.get("session")
         user_id = kwargs.get("user_id")
+        conversation_id = kwargs.get("conversation_id")
 
         if not query or not file_names:
             return []
@@ -71,7 +72,9 @@ class SearchFileTool(BaseTool):
             for file_name in file_names
         ]
 
-        files = file_crud.get_files_by_file_names(session, file_names, user_id)
+        files = file_crud.get_files_by_file_names(
+            session, file_names, user_id, conversation_id
+        )
 
         if not files:
             return []

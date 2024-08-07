@@ -103,7 +103,7 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
     def get_user_id(self, request: Request) -> Union[str, None]:
         try:
-            user_id = request.headers.get("User-Id", None)
+            user_id = get_header_user_id(request)
 
             if not user_id:
                 user_id = (

@@ -10,7 +10,6 @@ import { AgentsLayout, LeftSection, MainSection } from '@/components/Layout';
 import { ProtectedPage } from '@/components/ProtectedPage';
 import { Input, Text } from '@/components/Shared';
 import { useListAgents } from '@/hooks/agents';
-import { appSSR } from '@/pages/_app';
 import { cn } from '@/utils';
 
 const MAX_DEBOUNCE_TIME = 300;
@@ -98,21 +97,6 @@ const AgentsNewPage: NextPage<Props> = () => {
       </AgentsLayout>
     </ProtectedPage>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async () => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
 };
 
 export default AgentsNewPage;

@@ -16,6 +16,7 @@ import { useContextStore } from '@/context';
 import { useNotify } from '@/hooks/toast';
 import { useCitationsStore, useConversationStore, useParamsStore } from '@/stores';
 import { isAbortError } from '@/utils';
+import { useFileActions } from '@/hooks/files';
 
 export const useConversations = (params: { offset?: number; limit?: number; agentId?: string }) => {
   const client = useCohereClient();
@@ -107,6 +108,7 @@ export const useConversationActions = () => {
     resetConversation,
     conversation: { id: conversationId },
   } = useConversationStore();
+  const { clearComposerFiles } = useFileActions();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
   const notify = useNotify();
@@ -127,8 +129,14 @@ export const useConversationActions = () => {
         resetConversation();
         resetCitations();
         resetFileParams();
-        const newUrl = router.asPath.replace(`/c/${id}`, '');
-        router.push(newUrl, undefined, { shallow: true }); // go to new chat
+        clearComposerFiles();
+        router.push({
+          pathname: router.pathname,
+          query: {
+            ...router.query,
+            c: undefined,
+          },
+        }, undefined, { shallow: true }); // go to new chat
       }
     };
 

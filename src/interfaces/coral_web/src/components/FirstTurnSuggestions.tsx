@@ -2,7 +2,7 @@ import { Transition } from '@headlessui/react';
 import React, { useMemo } from 'react';
 
 import ButtonGroup from '@/components/ButtonGroup';
-import { TOOL_CALCULATOR_ID, TOOL_PYTHON_INTERPRETER_ID, TOOL_WEB_SEARCH_ID } from '@/constants';
+import { TOOL_SEARCH_FILE_ID } from '@/constants';
 import { useListTools } from '@/hooks/tools';
 import { useParamsStore } from '@/stores';
 import { ConfigurableParams } from '@/stores/slices/paramsSlice';
@@ -16,34 +16,30 @@ type Prompt = {
 
 const SUGGESTED_PROMPTS: Prompt[] = [
   {
-    label: 'Plot real estate data',
+    label: 'Shareholder\'s Agreement',
     params: {
       fileIds: [],
       tools: [
-        { name: TOOL_PYTHON_INTERPRETER_ID },
-        { name: TOOL_CALCULATOR_ID },
-        { name: TOOL_WEB_SEARCH_ID },
+        { name: TOOL_SEARCH_FILE_ID },
       ],
     },
     message:
-      'Plot the average 1 bedroom rental price in Jan 2024 for the 5 most expensive cities in North America',
+      'Generate a template for a shareholders\' agreement for a private limited company',
   },
   {
-    label: 'Clean up data in Python',
-    params: { fileIds: [], tools: [] },
-    message: `I want to figure out how to remove nan values from my array. For example, my array looks something like this:
-    
-    x = [1400, 1500, 1600, nan, nan, nan, 1700] #Not in this exact configuration
-        
-    How can I remove the nan values from x to get something like:
-        
-    x = [1400, 1500, 1600, 1700]`,
+    label: 'Non-compete clauses',
+    params: {
+      fileIds: [], tools: [
+        { name: TOOL_SEARCH_FILE_ID },
+      ]
+    },
+    message: `What are the legal requirements for drafting a non-compete clause in an employment contract?`,
   },
   {
-    label: 'Write a business plan in French',
+    label: 'Acquiring a commercial property',
     params: { fileIds: [], tools: [] },
     message:
-      'Write a business plan outline for an marketing agency in French. Highlight all the section titles, and make it less than 300 words.',
+      'What are the legal steps involved in acquiring a commercial property through a share purchase?',
   },
 ];
 
@@ -71,7 +67,9 @@ export const FirstTurnSuggestions: React.FC<Props> = ({ isFirstTurn, onSuggestio
   );
 
   const handleSuggestionClick = (message: string, params: Partial<ConfigurableParams>) => {
-    onSuggestionClick(message, params);
+    if (onSuggestionClick) {
+      onSuggestionClick(message, params);
+    }
     if (params) {
       setParams(params);
     }

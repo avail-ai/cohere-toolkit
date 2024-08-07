@@ -8,6 +8,7 @@ import {
   SETTINGS_DRAWER_ID,
 } from '@/constants';
 import { useConversationActions } from '@/hooks/conversation';
+import { useFileActions } from '@/hooks/files';
 import { useNotify } from '@/hooks/toast';
 import {
   useCitationsStore,
@@ -79,6 +80,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
     resetConversation,
   } = useConversationStore();
   const { resetFileParams } = useParamsStore();
+  const { clearComposerFiles } = useFileActions();
   const { resetCitations } = useCitationsStore();
   const { deleteConversation } = useConversationActions();
   const { focusComposer } = useFocusComposer();
@@ -93,6 +95,7 @@ export const useChatHotKeys = (): CustomHotKey[] => {
         resetConversation();
         resetCitations();
         resetFileParams();
+        clearComposerFiles();
       },
     },
     {

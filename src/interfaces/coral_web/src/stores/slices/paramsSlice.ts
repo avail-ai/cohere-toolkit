@@ -8,7 +8,7 @@ import { StoreState } from '..';
 const INITIAL_STATE: ConfigurableParams = {
   model: undefined,
   temperature: DEFAULT_CHAT_TEMPERATURE,
-  preamble: '',
+  preamble: "You have files uploaded as knowledge to pull from. You should adhere to the facts in the provided materials. Avoid speculations or information not contained in the documents. Heavily favour knowledge provided in the documents before falling back to baseline knowledge or other sources. If searching the documents didn't yield any answer, just say that.",
   tools: [],
   fileIds: [],
   deployment: undefined,

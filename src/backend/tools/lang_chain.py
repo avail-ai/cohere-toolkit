@@ -1,4 +1,5 @@
 import os
+import pathlib
 from typing import Any, Dict, List
 
 from langchain.text_splitter import CharacterTextSplitter
@@ -61,7 +62,10 @@ class LangChainVectorDBRetriever(BaseTool):
     COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 
     def __init__(self, filepath: str):
-        self.filepath = filepath
+        path = pathlib.Path(filepath)
+        self.filepath = str(path)
+        self.persist_directory = str(path.parent)
+        self.file_id = path.name
 
     @classmethod
     def is_available(cls) -> bool:
@@ -81,3 +85,19 @@ class LangChainVectorDBRetriever(BaseTool):
         input_docs = db.as_retriever().get_relevant_documents(query)
 
         return [dict({"text": doc.page_content}) for doc in input_docs]
+
+        db = Chroma.from_documents(
+            documents=pages,
+            ids=[f"{self.file_id}_{i}" for i in range(len(pages))],
+            embedding=cohere_embeddings,
+            persist_directory=self.persist_directory,
+        )
+        query = parameters.get("query", "")
+        input_docs = db.as_retriever(
+            search_kwargs={"filter": {"source": self.filepath}}
+        ).get_relevant_documents(query)
+
+        return [
+            dict({"text": doc.page_content, "title": self.file_id})
+            for doc in input_docs
+        ]

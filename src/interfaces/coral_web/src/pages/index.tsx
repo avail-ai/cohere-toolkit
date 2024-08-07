@@ -1,9 +1,8 @@
 import { Transition } from '@headlessui/react';
-import { QueryClient, dehydrate } from '@tanstack/react-query';
-import { GetServerSideProps, NextPage } from 'next';
-import { useContext, useEffect } from 'react';
+import { NextPage } from 'next';
+import { useContext, useEffect, useRef } from 'react';
 
-import { CohereClient, Document, ManagedTool } from '@/cohere-client';
+import { Document, ManagedTool } from '@/cohere-client';
 import { AgentsList } from '@/components/Agents/AgentsList';
 import { ConnectDataModal } from '@/components/ConnectDataModal';
 import Conversation from '@/components/Conversation';
@@ -22,7 +21,6 @@ import { useListAllDeployments } from '@/hooks/deployments';
 import { useExperimentalFeatures } from '@/hooks/experimentalFeatures';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import { useListTools, useShowUnauthedToolsModal } from '@/hooks/tools';
-import { appSSR } from '@/pages/_app';
 import {
   useCitationsStore,
   useConversationStore,
@@ -31,12 +29,13 @@ import {
 } from '@/stores';
 import { OutputFiles } from '@/stores/slices/citationsSlice';
 import { cn, createStartEndKey, mapHistoryToMessages } from '@/utils';
-import { getSlugRoutes } from '@/utils/getSlugRoutes';
 import { parsePythonInterpreterToolFields } from '@/utils/tools';
+import { useFileActions } from '@/hooks/files';
 
 const Page: NextPage = () => {
   const { agentId, conversationId } = useSlugRoutes();
 
+  const prevConversationId = useRef<string>();
   const { setConversation } = useConversationStore();
   const {
     settings: { isConvListPanelOpen, isMobileConvListPanelOpen },
@@ -46,6 +45,7 @@ const Page: NextPage = () => {
   const isMobile = !isDesktop;
 
   const { addCitation, resetCitations, saveOutputFiles } = useCitationsStore();
+  const { clearComposerFiles } = useFileActions();
   const {
     params: { deployment },
     setParams,
@@ -89,8 +89,12 @@ const Page: NextPage = () => {
   }, [showUnauthedToolsModal]);
 
   useEffect(() => {
-    resetCitations();
-    resetFileParams();
+    if (conversationId && prevConversationId.current && prevConversationId.current !== conversationId) {
+      resetCitations();
+      resetFileParams();
+      clearComposerFiles();
+    }
+    prevConversationId.current = conversationId;
 
     const agentTools = (agent?.tools
       .map((name) => (tools ?? [])?.find((t) => t.name === name))
@@ -98,11 +102,7 @@ const Page: NextPage = () => {
     setParams({
       tools: agentTools,
     });
-
-    if (conversationId) {
-      setConversation({ id: conversationId });
-    }
-  }, [conversationId, setConversation, resetCitations, agent, tools]);
+  }, [conversationId, resetCitations, agent, tools]);
 
   useEffect(() => {
     if (!conversation) return;
@@ -230,77 +230,6 @@ const Page: NextPage = () => {
       </Layout>
     </ProtectedPage>
   );
-};
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const deps = appSSR.initialize() as {
-    queryClient: QueryClient;
-    cohereClient: CohereClient;
-  };
-
-  const { conversationId, agentId } = getSlugRoutes(context.query.slug);
-
-  const prefetchQueries = [
-    deps.queryClient.prefetchQuery({
-      queryKey: ['conversations'],
-      queryFn: async () => {
-        return (await deps.cohereClient.listConversations({})) ?? [];
-      },
-    }),
-    deps.queryClient.prefetchQuery({
-      queryKey: ['tools'],
-      queryFn: async () => await deps.cohereClient.listTools({}),
-    }),
-    deps.queryClient.prefetchQuery({
-      queryKey: ['deployments'],
-      queryFn: async () => await deps.cohereClient.listDeployments({}),
-    }),
-  ];
-
-  if (agentId) {
-    prefetchQueries.push(
-      deps.queryClient.prefetchQuery({
-        queryKey: ['agent', agentId],
-        queryFn: async () => {
-          return await deps.cohereClient.getAgent(agentId);
-        },
-      })
-    );
-  } else {
-    prefetchQueries.push(
-      deps.queryClient.prefetchQuery({
-        queryKey: ['defaultAgent'],
-        queryFn: async () => {
-          return await deps.cohereClient.getDefaultAgent();
-        },
-      })
-    );
-  }
-
-  if (conversationId) {
-    prefetchQueries.push(
-      deps.queryClient.prefetchQuery({
-        queryKey: ['conversation', conversationId],
-        queryFn: async () => {
-          const conversation = await deps.cohereClient.getConversation({
-            conversationId,
-          });
-          // react-query useInfiniteQuery expected response shape
-          return { conversation };
-        },
-      })
-    );
-  }
-
-  await Promise.allSettled(prefetchQueries);
-
-  return {
-    props: {
-      appProps: {
-        reactQueryState: dehydrate(deps.queryClient),
-      },
-    },
-  };
 };
 
 export default Page;

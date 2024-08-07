@@ -75,6 +75,7 @@ class CustomChat(BaseChat):
                     )
                     break
         except Exception as e:
+            logger.exception("Error in chat flow")
             yield {
                 "event_type": StreamEvent.STREAM_END,
                 "finish_reason": "ERROR",
@@ -150,6 +151,7 @@ class CustomChat(BaseChat):
                     kwargs.get("conversation_id"),
                     kwargs.get("session"),
                     kwargs.get("user_id"),
+                    chat_request.file_ids
                 )
         else:
             # TODO: remove this workaround
@@ -259,6 +261,7 @@ class CustomChat(BaseChat):
                 user_id=kwargs.get("user_id"),
                 trace_id=kwargs.get("trace_id"),
                 agent_id=kwargs.get("agent_id"),
+                conversation_id=kwargs.get("conversation_id"),
             )
 
             # If the tool returns a list of outputs, append each output to the tool_results list
@@ -326,6 +329,7 @@ class CustomChat(BaseChat):
         conversation_id: str,
         session: Any,
         user_id: str,
+        file_ids: list[str] = None
     ) -> List[Dict[str, str]]:
         if session is None or conversation_id is None or len(conversation_id) == 0:
             return chat_history
@@ -333,6 +337,9 @@ class CustomChat(BaseChat):
         available_files = get_files_by_conversation_id(
             session, conversation_id, user_id
         )
+        available_files = available_files if file_ids is None else [
+            file for file in available_files if file.id in file_ids
+        ]
         files_message = "The user uploaded the following attachments:\n"
 
         for file in available_files:

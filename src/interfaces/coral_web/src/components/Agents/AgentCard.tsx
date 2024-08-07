@@ -7,6 +7,7 @@ import { CoralLogo, Text, Tooltip } from '@/components/Shared';
 import { useContextStore } from '@/context';
 import { useRecentAgents } from '@/hooks/agents';
 import { getIsTouchDevice } from '@/hooks/breakpoint';
+import { useFileActions } from '@/hooks/files';
 import { useSlugRoutes } from '@/hooks/slugRoutes';
 import {
   useAgentsStore,
@@ -38,11 +39,11 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const route = router.asPath;
   const isActive = isBaseAgent
     ? conversationId
-      ? route === `/c/${conversationId}`
+      ? route === `/?c=${conversationId}`
       : route === '/'
     : conversationId
-    ? route === `/a/${id}/c/${conversationId}`
-    : route === `/a/${id}`;
+    ? route === `/?a=${id}&c=${conversationId}`
+    : route === `/?a=${id}`;
 
   const { open, close } = useContextStore();
   const { removeRecentAgentId } = useRecentAgents();
@@ -51,6 +52,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
   const { resetConversation } = useConversationStore();
   const { resetCitations } = useCitationsStore();
   const { resetFileParams } = useParamsStore();
+  const { clearComposerFiles } = useFileActions();
 
   const handleNewChat = () => {
     const url = isBaseAgent ? '/' : id ? `/a/${id}` : '/a';
@@ -59,6 +61,7 @@ export const AgentCard: React.FC<Props> = ({ name, id, isBaseAgent, isExpanded }
     resetConversation();
     resetCitations();
     resetFileParams();
+    clearComposerFiles();
   };
 
   const handleEditAssistant = () => {

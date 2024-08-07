@@ -1,4 +1,5 @@
 import os
+import sys
 
 from alembic.command import upgrade
 from alembic.config import Config
@@ -6,6 +7,7 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 
 from backend.config.auth import (
@@ -28,6 +30,10 @@ from backend.services.logger import LoggingMiddleware, get_logger
 from backend.services.metrics import MetricsMiddleware
 
 logger = get_logger()
+
+if os.environ.get("USE_PYSQLITE", False):
+    __import__("pysqlite3")
+    sys.modules["sqlite3"] = sys.modules.pop("pysqlite3")
 
 load_dotenv()
 
@@ -67,6 +73,13 @@ def create_app():
             app.include_router(router, dependencies=dependencies)
         else:
             app.include_router(router)
+    app.mount(
+        "/",
+        StaticFiles(
+            directory=os.path.join(os.path.dirname(__file__), "ui", "output"), html=True
+        ),
+        name="ui",
+    )
 
     # Add middleware
     app.add_middleware(

@@ -159,7 +159,7 @@ class StreamToolCallsGeneration(ChatResponse):
 
     stream_search_results: StreamSearchResults | None = Field(
         title="List of search results used to generate grounded response with citations",
-        default=[],
+        default=None,
     )
 
     tool_calls: List[ToolCall] | None = Field(
